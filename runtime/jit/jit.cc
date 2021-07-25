@@ -1193,11 +1193,6 @@ static bool HasImageWithProfile() {
   return false;
 }
 
-bool Jit::InZygoteUsingJit() {
-  Runtime* runtime = Runtime::Current();
-  return runtime->IsZygote() && HasImageWithProfile() && runtime->UseJitCompilation();
-}
-
 void Jit::CreateThreadPool() {
   // There is a DCHECK in the 'AddSamples' method to ensure the tread pool
   // is not null when we instrument.
@@ -1227,7 +1222,7 @@ void Jit::CreateThreadPool() {
     thread_pool_->AddTask(Thread::Current(), new ZygoteVerificationTask());
   }
 
-  if (InZygoteUsingJit()) {
+  if (runtime->IsZygote() && HasImageWithProfile() && UseJitCompilation()) {
     // If we have an image with a profile, request a JIT task to
     // compile all methods in that profile.
     thread_pool_->AddTask(Thread::Current(), new ZygoteTask());
